@@ -9,7 +9,7 @@ jobs:
   coverage:
     uses: OpenVoiceOS/gh-automations/.github/workflows/coverage.yml@dev
     with:
-      python_version: '3.11'
+      python_version: '3.12'
       coverage_source: 'py_music_assistant'
       test_path: 'test/'
       install_extras: ''

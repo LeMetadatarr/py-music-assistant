@@ -9,14 +9,12 @@ description = "Python HTTP client and mediavocab bridge for a Music Assistant se
 readme = "README.md"
 license = { text = "Apache-2.0" }
 authors = [{ name = "JarbasAI", email = "jarbasai@mailfence.com" }]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 keywords = ["music-assistant", "mediavocab", "ovos", "OpenVoiceOS", "OCP", "media"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
