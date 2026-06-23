@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-music-assistant"
+dynamic = ["version"]
+description = "Python HTTP client and mediavocab bridge for a Music Assistant server"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "JarbasAI", email = "jarbasai@mailfence.com" }]
+requires-python = ">=3.10"
+keywords = ["music-assistant", "mediavocab", "ovos", "OpenVoiceOS", "OCP", "media"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "requests",
+    "ovos-utils>=0.0.38",
+    "mediavocab>=1.0.0",
+    "music-assistant-models>=1.0.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov"]
+
+[project.urls]
+Homepage = "https://github.com/TigreGotico/py-music-assistant"
+Source = "https://github.com/TigreGotico/py-music-assistant"
+
+[tool.setuptools]
+packages = ["py_music_assistant"]
+
+[tool.setuptools.dynamic]
+version = { attr = "py_music_assistant.version.__version__" }

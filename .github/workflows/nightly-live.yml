@@ -1,0 +1,31 @@
+name: nightly-live
+
+# Opt-in live tests against a real Music Assistant server. These never run in
+# normal CI (no server is reachable there); they are for manual dispatch and a
+# nightly heartbeat when a MASS_SERVER_URL secret is configured, so upstream API
+# drift surfaces instead of silently returning empty results in production.
+
+on:
+  schedule:
+    - cron: "23 4 * * *"   # 04:23 UTC daily
+  workflow_dispatch:
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ secrets.MASS_SERVER_URL != '' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+      - name: Run live tests
+        env:
+          MASS_SERVER_URL: ${{ secrets.MASS_SERVER_URL }}
+        run: |
+          pytest -q test/live/
