@@ -46,9 +46,17 @@ lifecycle). Item `uri`s are `library://<type>/<id>` identifiers that the
 
 ```bash
 pip install -e .[test]
-pytest test/                                   # network-free (mocked + fixtures)
+pytest test/                                   # unit + end2end, network-free (mocked + fixtures)
 MASS_SERVER_URL=http://<host>:8095 pytest test/live/   # opt-in, against a real server
 ```
+
+The end-to-end tests ([test/end2end/](test/end2end/)) exercise the full round-trip
+this library owns — HTTP transport → Music Assistant `/api` protocol → mediavocab
+bridge → typed `Release` objects — against a mocked server. This is a pure
+transport library (no skills, no message bus), so `ovoscope` end-to-end tests live
+in the consumers ([ovos-media-plugin-mass](https://github.com/OpenVoiceOS/ovos-media-plugin-mass),
+[ovos-media-provider-mass](https://github.com/OpenVoiceOS/ovos-media-provider-mass),
+[ovos-skill-music-assistant](https://github.com/OpenVoiceOS/ovos-skill-music-assistant)).
 
 ## License
 
