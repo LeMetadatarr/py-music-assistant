@@ -1,16 +1,16 @@
 # py-music-assistant
 
 A thin, synchronous Python client for a [Music Assistant](https://www.music-assistant.io/)
-server plus a [mediavocab](https://github.com/TigreGotico/mediavocab) bridge.
+server, plus a [mediavocab](https://github.com/TigreGotico/mediavocab) bridge.
 
 ## Why this exists
 
-The OVOS Music Assistant integrations all need to (a) talk to a Music Assistant
-server and (b) turn its catalog into typed, shareable media objects. Keeping that
-in one library means the transport and the dict→`Release` mapping — including the
-None-guards and image-resolution rules — live in exactly one place instead of
-being copy-pasted across the playback backend, the search provider, and the
-legacy skill.
+The OVOS Music Assistant integrations all need to talk to a Music Assistant
+server and turn its catalog into typed, shareable media objects. Keeping this
+in one library puts the transport and the dict-to-`Release` mapping in exactly
+one place, including the None-guards and image-resolution rules. Without this
+library, that logic would be copy-pasted across the playback backend, the
+search provider, and the legacy skill.
 
 ## Two layers
 
@@ -19,7 +19,7 @@ legacy skill.
 | `py_music_assistant.client` | `SimpleHTTPMusicAssistantClient` | HTTP transport over the server's `/api` endpoint |
 | `py_music_assistant.converters` | `item_to_release`, `search_to_releases`, `recently_played_to_releases` | map API dicts to `mediavocab.Release` |
 
-Both are re-exported from the top-level `py_music_assistant` package.
+The top-level `py_music_assistant` package re-exports both layers.
 
 ## The flow
 
