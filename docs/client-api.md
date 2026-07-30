@@ -2,7 +2,7 @@
 
 `SimpleHTTPMusicAssistantClient` wraps a Music Assistant server's synchronous
 JSON `/api` endpoint. Every method posts `{"command", "message_id", "args"}` and
-returns the decoded JSON; a non-200 response raises
+returns the decoded JSON. A non-200 response raises
 `music_assistant_models.errors.MusicAssistantError`.
 
 ```python
@@ -10,8 +10,8 @@ from py_music_assistant import SimpleHTTPMusicAssistantClient
 api = SimpleHTTPMusicAssistantClient("http://192.168.1.100:8095")
 ```
 
-The constructor accepts an optional `requests.Session` (handy for tests or
-connection reuse).
+The constructor accepts an optional `requests.Session`, for tests or
+connection reuse.
 
 ## Catalog
 
@@ -35,5 +35,8 @@ connection reuse).
 | `player_command_volume_set/up/down/mute(player_id, ...)` | `players/cmd/volume_*` |
 | `player_command_power_on/off(player_id)` | `players/player_command_power_*` |
 
-`media` passed to `play_media` is a `library://<type>/<id>` uri as returned by
-search.
+The `media` argument passed to `play_media` is a `library://<type>/<id>` uri,
+as returned by search.
+
+---
+[Home](index.md) · [Next →](mediavocab-bridge.md)
