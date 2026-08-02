@@ -1,12 +1,20 @@
 # Changelog
 
-## [0.0.2a1](https://github.com/TigreGotico/py-music-assistant/tree/0.0.2a1) (2026-07-30)
+## [0.0.2a2](https://github.com/LeMetadatarr/py-music-assistant/tree/0.0.2a2) (2026-08-02)
 
-[Full Changelog](https://github.com/TigreGotico/py-music-assistant/compare/0.0.1...0.0.2a1)
+[Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.0.2a1...0.0.2a2)
 
 **Merged pull requests:**
 
-- docs: rewrite README in Simplified Technical English [\#6](https://github.com/TigreGotico/py-music-assistant/pull/6) ([JarbasAl](https://github.com/JarbasAl))
+- docs: QA pass — accuracy, org-move URLs, related projects [\#8](https://github.com/LeMetadatarr/py-music-assistant/pull/8) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.2a1](https://github.com/LeMetadatarr/py-music-assistant/tree/0.0.2a1) (2026-07-30)
+
+[Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.0.1...0.0.2a1)
+
+**Merged pull requests:**
+
+- docs: rewrite README in Simplified Technical English [\#6](https://github.com/LeMetadatarr/py-music-assistant/pull/6) ([JarbasAl](https://github.com/JarbasAl))
 
 
 
