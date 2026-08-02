@@ -29,8 +29,8 @@ dependencies = [
 test = ["pytest", "pytest-cov"]
 
 [project.urls]
-Homepage = "https://github.com/TigreGotico/py-music-assistant"
-Source = "https://github.com/TigreGotico/py-music-assistant"
+Homepage = "https://github.com/LeMetadatarr/py-music-assistant"
+Source = "https://github.com/LeMetadatarr/py-music-assistant"
 
 [tool.setuptools]
 packages = ["py_music_assistant"]
