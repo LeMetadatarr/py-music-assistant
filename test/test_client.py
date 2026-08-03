@@ -65,3 +65,110 @@ def test_track_info_passes_uri():
     payload = session.post.call_args.kwargs["json"]
     assert payload["command"] == "music/item_by_uri"
     assert payload["args"] == {"uri": "library://track/9903"}
+
+
+def test_send_command_passes_timeout_to_session():
+    """Regression: a request without a timeout can hang the caller forever."""
+    client, session = _client(json_return={})
+    client.send_command("players/all")
+    assert session.post.call_args.kwargs["timeout"] == client.timeout
+
+
+def test_custom_timeout_is_honoured():
+    session = MagicMock()
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {}
+    session.post.return_value = resp
+    client = SimpleHTTPMusicAssistantClient("http://mass.local:8095", session=session, timeout=2.5)
+
+    client.send_command("players/all")
+
+    assert session.post.call_args.kwargs["timeout"] == 2.5
+
+
+QUEUE_ITEM = {
+    "queue_id": "queue_1",
+    "queue_item_id": "item_1",
+    "name": "Worms",
+    "duration": 208,
+    "media_item": {
+        "media_type": "track",
+        "item_id": "9903",
+        "provider": "library",
+        "name": "Worms",
+        "uri": "library://track/9903",
+        "provider_mappings": [],
+        "artists": [{"item_id": "1", "provider": "library", "name": "Viagra Boys",
+                      "media_type": "artist", "provider_mappings": []}],
+    },
+}
+
+
+def test_get_player_queue_items_returns_queue_item_objects():
+    """Regression: raw dicts were returned instead of QueueItem objects, so
+    downstream ``hasattr(item, "name")`` checks in ``_extract_track_from_queue``
+    always failed (dicts have no ``name`` attribute) and the queue-based track
+    fallback silently never worked."""
+    client, session = _client(json_return=[QUEUE_ITEM])
+
+    items = client.get_player_queue_items("queue_1")
+
+    assert len(items) == 1
+    item = items[0]
+    assert hasattr(item, "name")
+    assert item.name == "Worms"
+    assert item.media_item.name == "Worms"
+
+
+def test_get_player_queue_items_passes_pagination_args():
+    client, session = _client(json_return=[])
+    client.get_player_queue_items("queue_1", limit=5, offset=10)
+    payload = session.post.call_args.kwargs["json"]
+    assert payload["args"] == {"queue_id": "queue_1", "limit": 5, "offset": 10}
+
+
+def test_get_player_queue_items_empty_result():
+    client, _ = _client(json_return=[])
+    assert client.get_player_queue_items("queue_1") == []
+
+
+PLAYER_WITH_UNTITLED_CURRENT_MEDIA = {
+    "player_id": "p1",
+    "provider": "sonos",
+    "type": "player",
+    "name": "Kitchen",
+    "available": True,
+    "device_info": {},
+    "powered": True,
+    "volume_level": 30,
+    # current_media has no title (typical mid-transition state), so
+    # get_player_state must fall back to the active queue's current item.
+    "current_media": {"uri": "library://track/9903", "queue_item_id": "item_1"},
+}
+
+
+def test_get_player_state_falls_back_to_queue_item_name():
+    """End-to-end regression for the get_player_queue_items dict/object bug:
+    when current_media carries no title, get_player_state must resolve the
+    track name from the active queue item instead of silently returning
+    "No track"."""
+    session = MagicMock()
+
+    def post(url, json=None, **kwargs):
+        resp = MagicMock()
+        resp.status_code = 200
+        if json["command"] == "players/all":
+            resp.json.return_value = [PLAYER_WITH_UNTITLED_CURRENT_MEDIA]
+        elif json["command"] == "player_queues/items":
+            resp.json.return_value = [QUEUE_ITEM]
+        else:
+            raise AssertionError(f"unexpected command {json['command']}")
+        return resp
+
+    session.post.side_effect = post
+    client = SimpleHTTPMusicAssistantClient("http://mass.local:8095", session=session)
+
+    state = client.get_player_state("p1")
+
+    assert state["current_track"] == "Worms"
