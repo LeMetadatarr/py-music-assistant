@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.2a4](https://github.com/LeMetadatarr/py-music-assistant/tree/0.0.2a4) (2026-08-03)
+
+[Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.0.2a3...0.0.2a4)
+
+**Merged pull requests:**
+
+- deep: bugs, real-fixture tests, docs/examples [\#10](https://github.com/LeMetadatarr/py-music-assistant/pull/10) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.2a3](https://github.com/LeMetadatarr/py-music-assistant/tree/0.0.2a3) (2026-08-03)
 
 [Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.0.2a2...0.0.2a3)
@@ -23,14 +31,6 @@
 **Merged pull requests:**
 
 - docs: rewrite README in Simplified Technical English [\#6](https://github.com/LeMetadatarr/py-music-assistant/pull/6) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.0.1](https://github.com/LeMetadatarr/py-music-assistant/tree/0.0.1) (2026-06-23)
-
-[Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/ed28101f46c392eaa1d636fe466ee9684b4a9342...0.0.1)
-
-**Merged pull requests:**
-
-- Configure Renovate [\#1](https://github.com/LeMetadatarr/py-music-assistant/pull/1) ([renovate[bot]](https://github.com/apps/renovate))
 
 
 
