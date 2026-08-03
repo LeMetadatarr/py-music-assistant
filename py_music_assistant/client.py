@@ -17,6 +17,7 @@ from ovos_utils.log import LOG
 from music_assistant_models.enums import MediaType, QueueOption
 from music_assistant_models.errors import MusicAssistantError
 from music_assistant_models.player import Player
+from music_assistant_models.queue_item import QueueItem
 
 
 def debug_method(func):
@@ -69,10 +70,16 @@ def debug_method(func):
 class SimpleHTTPMusicAssistantClient:
     """Simple HTTP-based Music Assistant client that avoids WebSocket issues."""
 
-    def __init__(self, server_url: str, session: Optional[requests.Session] = None):
+    def __init__(
+        self,
+        server_url: str,
+        session: Optional[requests.Session] = None,
+        timeout: float = 10.0,
+    ):
         self.server_url = server_url.rstrip("/")
         self.api_url = f"{self.server_url}/api"
         self.session = session or requests.Session()
+        self.timeout = timeout
         self.log = LOG()
 
     @debug_method
@@ -80,7 +87,7 @@ class SimpleHTTPMusicAssistantClient:
         """Send a command to Music Assistant via HTTP API."""
         payload = {"command": command, "message_id": uuid.uuid4().hex, "args": args}
 
-        response = self.session.post(self.api_url, json=payload)
+        response = self.session.post(self.api_url, json=payload, timeout=self.timeout)
         if response.status_code == 200:
             return response.json()
         raise MusicAssistantError(f"HTTP {response.status_code}: {response.text}")
@@ -191,9 +198,10 @@ class SimpleHTTPMusicAssistantClient:
         return self.send_command("players/cmd/stop", player_id=player_id)
 
     # State checking methods
-    def get_player_queue_items(self, queue_id: str, limit: int = 10, offset: int = 0):
+    def get_player_queue_items(self, queue_id: str, limit: int = 10, offset: int = 0) -> List[QueueItem]:
         """Get current queue items for a player."""
-        return self.send_command("player_queues/items", queue_id=queue_id, limit=limit, offset=offset)
+        result = self.send_command("player_queues/items", queue_id=queue_id, limit=limit, offset=offset)
+        return [QueueItem.from_dict(item) for item in result]
 
     def get_active_queue(self, player_id: str):
         """Get the current active queue for a player."""

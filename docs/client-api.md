@@ -11,7 +11,8 @@ api = SimpleHTTPMusicAssistantClient("http://192.168.1.100:8095")
 ```
 
 The constructor accepts an optional `requests.Session`, for tests or
-connection reuse.
+connection reuse, and a `timeout` in seconds (default `10.0`) applied to
+every request.
 
 ## Catalog
 
@@ -28,6 +29,7 @@ connection reuse.
 |---|---|
 | `get_players()` | `players/all` (→ `Player` objects) |
 | `get_player_state(player_id)` | derived (state/volume/current track) |
+| `get_player_queue_items(queue_id, limit=10, offset=0)` | `player_queues/items` (→ `QueueItem` objects) |
 | `get_active_queue(player_id)` | `player_queues/get_active_queue` |
 | `play_media(queue_id, media, option=PLAY, radio_mode=False)` | `player_queues/play_media` |
 | `queue_command_play/pause/next/previous(queue_id)` | `player_queues/*` |
