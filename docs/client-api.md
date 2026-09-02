@@ -2,16 +2,30 @@
 
 `SimpleHTTPMusicAssistantClient` wraps a Music Assistant server's synchronous
 JSON `/api` endpoint. Every method posts `{"command", "message_id", "args"}` and
-returns the decoded JSON; a non-200 response raises
-`music_assistant_models.errors.MusicAssistantError`.
+returns the decoded JSON. A non-200 response raises
+`music_assistant_models.errors.MusicAssistantError`; a 401 raises the more
+specific `AuthenticationRequired` (see below).
 
 ```python
 from py_music_assistant import SimpleHTTPMusicAssistantClient
-api = SimpleHTTPMusicAssistantClient("http://192.168.1.100:8095")
+api = SimpleHTTPMusicAssistantClient("http://192.168.1.100:8095", token="<your-token>")
 ```
 
-The constructor accepts an optional `requests.Session` (handy for tests or
-connection reuse).
+The constructor accepts an optional `requests.Session`, for tests or
+connection reuse, a `timeout` in seconds (default `10.0`) applied to every
+request, and a `token`.
+
+## Authentication
+
+Music Assistant 2.11+ requires a token on every request. Resolution order:
+the `token` constructor argument, then the `MASS_TOKEN` environment variable,
+then unauthenticated (for servers older than 2.11, which have no auth). When
+a token is set, every request carries `Authorization: Bearer <token>`.
+
+`login(username, password, device_name=None)` calls the unauthenticated
+`auth/login` command, sets `self.token` from the returned access token, and
+returns it — a convenience for minting a token from credentials instead of
+creating one in the web UI.
 
 ## Catalog
 
@@ -28,6 +42,7 @@ connection reuse).
 |---|---|
 | `get_players()` | `players/all` (→ `Player` objects) |
 | `get_player_state(player_id)` | derived (state/volume/current track) |
+| `get_player_queue_items(queue_id, limit=10, offset=0)` | `player_queues/items` (→ `QueueItem` objects) |
 | `get_active_queue(player_id)` | `player_queues/get_active_queue` |
 | `play_media(queue_id, media, option=PLAY, radio_mode=False)` | `player_queues/play_media` |
 | `queue_command_play/pause/next/previous(queue_id)` | `player_queues/*` |
@@ -35,5 +50,8 @@ connection reuse).
 | `player_command_volume_set/up/down/mute(player_id, ...)` | `players/cmd/volume_*` |
 | `player_command_power_on/off(player_id)` | `players/player_command_power_*` |
 
-`media` passed to `play_media` is a `library://<type>/<id>` uri as returned by
-search.
+The `media` argument passed to `play_media` is a `library://<type>/<id>` uri,
+as returned by search.
+
+---
+[Home](index.md) · [Next →](mediavocab-bridge.md)
