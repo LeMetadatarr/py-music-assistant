@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0a1](https://github.com/LeMetadatarr/py-music-assistant/tree/0.1.0a1) (2026-09-02)
+
+[Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.0.2a4...0.1.0a1)
+
+**Merged pull requests:**
+
+- feat: authenticate against Music Assistant with an API token [\#11](https://github.com/LeMetadatarr/py-music-assistant/pull/11) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.2a4](https://github.com/LeMetadatarr/py-music-assistant/tree/0.0.2a4) (2026-08-03)
 
 [Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.0.2a3...0.0.2a4)
