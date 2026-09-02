@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.0a2](https://github.com/LeMetadatarr/py-music-assistant/tree/0.1.0a2) (2026-09-02)
+
+[Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.1.0a1...0.1.0a2)
+
 ## [0.1.0a1](https://github.com/LeMetadatarr/py-music-assistant/tree/0.1.0a1) (2026-09-02)
 
 [Full Changelog](https://github.com/LeMetadatarr/py-music-assistant/compare/0.0.2a4...0.1.0a1)
