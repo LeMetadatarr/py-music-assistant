@@ -36,6 +36,26 @@ The client talks to the server's synchronous JSON `/api` endpoint. It has no
 WebSocket lifecycle. Item `uri` values are `library://<type>/<id>` identifiers.
 The `ovos-media-plugin-mass` backend resolves and plays these identifiers.
 
+## Authentication
+
+Music Assistant 2.11 and later requires every `/api` call to carry an access
+token. Pass one explicitly, or set the `MASS_TOKEN` environment variable:
+
+```python
+api = SimpleHTTPMusicAssistantClient("http://192.168.1.100:8095", token="<your-token>")
+```
+
+Create a long-lived token in the Music Assistant web UI under
+**Settings → Users**, on the user account the client should authenticate as.
+
+Servers older than 2.11 have no authentication and keep working unchanged: if
+no token is given (neither as an argument nor via `MASS_TOKEN`), the client
+sends no `Authorization` header at all.
+
+A call made without a token against a server that requires one raises
+`music_assistant_models.errors.AuthenticationRequired` with the fix spelled
+out in the message.
+
 ## Docs
 
 - [docs/index.md](docs/index.md): overview
