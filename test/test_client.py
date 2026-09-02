@@ -172,3 +172,116 @@ def test_get_player_state_falls_back_to_queue_item_name():
     state = client.get_player_state("p1")
 
     assert state["current_track"] == "Worms"
+
+
+def test_no_token_sends_no_authorization_header():
+    client, session = _client(json_return={})
+    client.send_command("players/all")
+    headers = session.post.call_args.kwargs["headers"]
+    assert headers is None
+
+
+def test_token_arg_sets_bearer_header():
+    session = MagicMock()
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {}
+    session.post.return_value = resp
+    client = SimpleHTTPMusicAssistantClient(
+        "http://mass.local:8095", session=session, token="secret-tok"
+    )
+
+    client.send_command("players/all")
+
+    headers = session.post.call_args.kwargs["headers"]
+    assert headers == {"Authorization": "Bearer secret-tok"}
+
+
+def test_token_from_env_var(monkeypatch):
+    monkeypatch.setenv("MASS_TOKEN", "env-tok")
+    session = MagicMock()
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {}
+    session.post.return_value = resp
+    client = SimpleHTTPMusicAssistantClient("http://mass.local:8095", session=session)
+
+    client.send_command("players/all")
+
+    headers = session.post.call_args.kwargs["headers"]
+    assert headers == {"Authorization": "Bearer env-tok"}
+
+
+def test_token_arg_overrides_env_var(monkeypatch):
+    monkeypatch.setenv("MASS_TOKEN", "env-tok")
+    client, session = _client(json_return={})
+    client2 = SimpleHTTPMusicAssistantClient(
+        "http://mass.local:8095", session=session, token="explicit-tok"
+    )
+    client2.send_command("players/all")
+    headers = session.post.call_args.kwargs["headers"]
+    assert headers == {"Authorization": "Bearer explicit-tok"}
+
+
+def test_401_raises_typed_authentication_error():
+    from music_assistant_models.errors import AuthenticationRequired
+
+    client, _ = _client(status=401)
+    with pytest.raises(AuthenticationRequired) as exc_info:
+        client.send_command("players/all")
+
+    message = str(exc_info.value)
+    assert "MASS_TOKEN" in message
+    assert "token=" in message
+    assert "settings/users" in message
+
+
+def test_authenticated_call_with_token_succeeds():
+    session = MagicMock()
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {"ok": True}
+    session.post.return_value = resp
+    client = SimpleHTTPMusicAssistantClient(
+        "http://mass.local:8095", session=session, token="secret-tok"
+    )
+
+    out = client.send_command("players/all")
+
+    assert out == {"ok": True}
+    assert session.post.call_args.kwargs["headers"] == {"Authorization": "Bearer secret-tok"}
+
+
+def test_login_sets_token_and_returns_it():
+    session = MagicMock()
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {
+        "success": True,
+        "access_token": "minted-tok",
+        "user": {"user_id": "u1", "username": "miro", "display_name": "Miro", "role": "admin"},
+    }
+    session.post.return_value = resp
+    client = SimpleHTTPMusicAssistantClient("http://mass.local:8095", session=session)
+
+    token = client.login("miro", "hunter2")
+
+    assert token == "minted-tok"
+    assert client.token == "minted-tok"
+    payload = session.post.call_args.kwargs["json"]
+    assert payload["command"] == "auth/login"
+    assert payload["args"] == {"username": "miro", "password": "hunter2"}
+
+
+def test_login_failure_raises_authentication_required():
+    from music_assistant_models.errors import AuthenticationRequired
+
+    session = MagicMock()
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {"success": False, "error": "Invalid credentials"}
+    session.post.return_value = resp
+    client = SimpleHTTPMusicAssistantClient("http://mass.local:8095", session=session)
+
+    with pytest.raises(AuthenticationRequired):
+        client.login("miro", "wrong")

@@ -8,6 +8,7 @@ catalog search, and the legacy ``ovos-skill-music-assistant``).
 """
 import functools
 import json
+import os
 import uuid
 from typing import Any, Dict, List, Optional
 
@@ -15,7 +16,7 @@ import requests
 from ovos_utils.log import LOG
 
 from music_assistant_models.enums import MediaType, QueueOption
-from music_assistant_models.errors import MusicAssistantError
+from music_assistant_models.errors import AuthenticationRequired, MusicAssistantError
 from music_assistant_models.player import Player
 from music_assistant_models.queue_item import QueueItem
 
@@ -75,22 +76,52 @@ class SimpleHTTPMusicAssistantClient:
         server_url: str,
         session: Optional[requests.Session] = None,
         timeout: float = 10.0,
+        token: Optional[str] = None,
     ):
         self.server_url = server_url.rstrip("/")
         self.api_url = f"{self.server_url}/api"
         self.session = session or requests.Session()
         self.timeout = timeout
         self.log = LOG()
+        # Music Assistant 2.11+ requires a Bearer token on every /api call.
+        # Older servers without auth must keep working unauthenticated, so a
+        # missing token here (and in MASS_TOKEN) simply means no header is sent.
+        self.token = token or os.environ.get("MASS_TOKEN")
 
     @debug_method
     def send_command(self, command: str, **args) -> Any:
         """Send a command to Music Assistant via HTTP API."""
         payload = {"command": command, "message_id": uuid.uuid4().hex, "args": args}
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else None
 
-        response = self.session.post(self.api_url, json=payload, timeout=self.timeout)
+        response = self.session.post(
+            self.api_url, json=payload, headers=headers, timeout=self.timeout
+        )
         if response.status_code == 200:
             return response.json()
+        if response.status_code == 401:
+            raise AuthenticationRequired(
+                "Music Assistant requires authentication: pass token= or set "
+                "MASS_TOKEN; create a token in the MA web UI under settings/users"
+            )
         raise MusicAssistantError(f"HTTP {response.status_code}: {response.text}")
+
+    @debug_method
+    def login(self, username: str, password: str, device_name: Optional[str] = None) -> str:
+        """Authenticate with username/password and set the resulting access token.
+
+        Convenience wrapper over the ``auth/login`` command (unauthenticated,
+        so it works before ``self.token`` is set). Sets ``self.token`` and
+        returns the access token on success.
+        """
+        args: Dict[str, Any] = {"username": username, "password": password}
+        if device_name:
+            args["device_name"] = device_name
+        result = self.send_command("auth/login", **args)
+        if not result.get("success"):
+            raise AuthenticationRequired(result.get("error") or "Music Assistant login failed")
+        self.token = result["access_token"]
+        return self.token
 
     @debug_method
     def get_players(self) -> List[Player]:
